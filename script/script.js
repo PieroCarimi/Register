@@ -49,7 +49,6 @@ class RegistroClasse {
             this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
         }
     
-        
         peopleList = [...this.studenti];
         peopleList.sort(function(a, b) {
             var cognomeA = a.lastName.toUpperCase(); // Converti in maiuscolo per ordinamento senza distinzione tra maiuscole e minuscole
@@ -73,10 +72,10 @@ class RegistroClasse {
                 }
                 
             }else{
+                // I cognomi e i nomi sono uguali, non è necessario cambiare l'ordine
                 return 0;
             }
         
-            // I cognomi sono uguali, non è necessario cambiare l'ordine
     
         });
 
@@ -90,7 +89,7 @@ class RegistroClasse {
             html += '<td class="text-center">' + element.lastName + "</td>";
             html += '<td class="text-center"><button onclick="visualizzaVoti()" class="btn btn-outline-dark m-2">Voti ↓</button>'
             html += 
-            '<td class="text-center"><button onclick="updateData('+index+')"class="btn btn-outline-secondary">Edit</button><button onclick="deleteData('+index+')"class="btn btn-outline-danger m-2">Delete</button></td>';
+            '<td class="text-center"><button onclick="updateData('+index+')"class="btn btn-outline-secondary">Edit</button><button onclick="register.rimuoviStudente('+element.id+')"class="btn btn-outline-danger m-2">Delete</button></td>';
             html +="</tr>";
             i++;
         });
@@ -98,7 +97,25 @@ class RegistroClasse {
     document.querySelector("#crudTable tbody").innerHTML = html;
       
     }
-  
+    
+    rimuoviStudente(id) {
+        if (localStorage.getItem("this.studenti") == null) {
+            this.studenti = [];
+        } else {
+            this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
+        }
+    
+        const indice = this.studenti.findIndex(studente => studente.id === id);
+    
+        if (indice !== -1) {
+            // Rimuovi l'elemento solo se l'indice è valido
+            this.studenti.splice(indice, 1);
+            localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
+            this.visualizzaStudenti();
+        } else {
+            console.error("Studente non trovato con l'id:", id);
+        }
+      }
 }
 
 var register = new RegistroClasse();
