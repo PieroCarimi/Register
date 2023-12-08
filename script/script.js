@@ -60,12 +60,14 @@ class RegistroClasse {
         var i = 1;
         peopleList.forEach(function(element,index){
             //var index = 1
-            html += "<tr>";
-            html += '<th scope="row">'+i+'</th>'
-            html += "<td>" + element.name + "</td>";
-            html += "<td>" + element.lastName + "</td>";
+            html += "<tr class='align-middle'>";
+            html += '<th scope="row" class="text-center">'+i+'</th>'
+            html += '<td class="text-center">' + element.id + "</td>";
+            html += '<td class="text-center">' + element.name + "</td>";
+            html += '<td class="text-center">' + element.lastName + "</td>";
+            html += '<td class="text-center"><button onclick="visualizzaVoti()" class="btn btn-outline-dark m-2">Voti ↓</button>'
             html += 
-            '<td><button onclick="deleteData('+index+')"class="btn btn-danger">Delete</button><button onclick="updateData('+index+')"class="btn btn-warning m-2">Edit</button></td>';
+            '<td class="text-center"><button onclick="updateData('+index+')"class="btn btn-outline-secondary">Edit</button><button onclick="deleteData('+index+')"class="btn btn-outline-danger m-2">Delete</button></td>';
             html +="</tr>";
             i++;
         });
