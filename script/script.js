@@ -8,20 +8,30 @@ class RegistroClasse {
         var name = document.getElementById("name").value;
         var lastName = document.getElementById("lastName").value;
 
+        if (name.trim() === '' || lastName.trim() === '') {
+            alert("Inserisci tutti i dati prima di inviare il form.");
+            return; // Interrompi la funzione se mancano dati
+        }
+
         if (localStorage.getItem("this.studenti") == null){
-            this.studenti = []
+            this.studenti=[]
         }else{
             this.studenti =JSON.parse(localStorage.getItem("this.studenti"));
+        }
+        
+        for(let student of this.studenti){
+            if (this.currentId === student.id){
+                this.currentId++;
+            }
         }
 
         var nuovoStudente = {
             name: name,
             lastName: lastName,
-            id: this.currentId++,
+            id: this.currentId,
             voti: []
         };
         
-
         this.studenti.push(nuovoStudente);
 
         localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
@@ -44,22 +54,35 @@ class RegistroClasse {
         peopleList.sort(function(a, b) {
             var cognomeA = a.lastName.toUpperCase(); // Converti in maiuscolo per ordinamento senza distinzione tra maiuscole e minuscole
             var cognomeB = b.lastName.toUpperCase();
+            var nomeA = a.name.toUpperCase();
+            var nomeB = b.name.toUpperCase();
         
             if (cognomeA < cognomeB) {
                 return -1;
             }
-            if (cognomeA > cognomeB) {
+            else if (cognomeA > cognomeB) {
                 return 1;
+            }
+            else if(cognomeA === cognomeB){
+                if(nomeA < nomeB){
+                    return -1;
+                }else if(nomeA > nomeB){
+                    return 1;
+                }else{
+                    return 0;
+                }
+                
+            }else{
+                return 0;
             }
         
             // I cognomi sono uguali, non è necessario cambiare l'ordine
-            return 0;
+    
         });
 
         var html = "";
         var i = 1;
         peopleList.forEach(function(element,index){
-            //var index = 1
             html += "<tr class='align-middle'>";
             html += '<th scope="row" class="text-center">'+i+'</th>'
             html += '<td class="text-center">' + element.id + "</td>";
@@ -76,8 +99,6 @@ class RegistroClasse {
       
     }
   
-    
-
 }
 
 var register = new RegistroClasse();
