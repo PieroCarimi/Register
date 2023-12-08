@@ -23,14 +23,14 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-center mt-4 mb-4">
-                    <button type="submit" class="btn btn-success" id="addStudent" onclick="AddStudent()">Add Student</button>
+                    <button type="submit" class="btn btn-success" id="addStudent" onclick="register.aggiungiStudente()">Add Student</button>
                     <button type="submit" class="btn btn-success" id="updateStudent" onclick="UpdateStudent()">Update Student</button>
                 </div>
             </form>
         </div>
         <div class="row mt-5">
             <div class="col-12">
-                <table class="table table-striped">
+                <table class="table table-striped" id="crudTable">
                     <thead>
                       <tr>
                         <th scope="col">#</th>
