@@ -75,8 +75,6 @@ class RegistroClasse {
                 // I cognomi e i nomi sono uguali, non è necessario cambiare l'ordine
                 return 0;
             }
-        
-    
         });
 
         var html = "";
@@ -89,7 +87,7 @@ class RegistroClasse {
             html += '<td class="text-center">' + element.lastName + "</td>";
             html += '<td class="text-center"><button onclick="visualizzaVoti()" class="btn btn-outline-dark m-2">Voti ↓</button>'
             html += 
-            '<td class="text-center"><button onclick="updateData('+index+')"class="btn btn-outline-secondary">Edit</button><button onclick="register.rimuoviStudente('+element.id+')"class="btn btn-outline-danger m-2">Delete</button></td>';
+            '<td class="text-center"><button onclick="register.modificaStudente('+element.id+')"class="btn btn-outline-secondary">Edit</button><button onclick="register.rimuoviStudente('+element.id+')"class="btn btn-outline-danger m-2">Delete</button></td>';
             html +="</tr>";
             i++;
         });
@@ -116,6 +114,45 @@ class RegistroClasse {
             console.error("Studente non trovato con l'id:", id);
         }
       }
+
+    modificaStudente(id) {
+        document.getElementById("addStudent").style.display = "none";
+        document.getElementById("updateStudent").style.display = "block";
+        //var name2 = document.getElementById("name").value;
+        //var lastName2 = document.getElementById("lastName").value;
+
+        if(localStorage.getItem("this.studenti") == null){
+            this.studenti = [];
+        }else{
+            this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
+        }
+
+        const indice = this.studenti.findIndex(studente => studente.id === id);
+
+        document.getElementById("name").value = this.studenti[indice].name;
+        document.getElementById("lastName").value = this.studenti[indice].lastName;
+
+        document.querySelector("#updateStudent").onclick = (function(){
+           
+            this.studenti[indice].name = document.getElementById("name").value;
+            this.studenti[indice].lastName = document.getElementById("lastName").value;
+            
+            if (!(this.studenti[indice].name.trim() !== '' && this.studenti[indice].lastName.trim() !== '')){
+                alert("Inserisci tutti i dati prima di inviare il form.");
+                return;
+            }
+
+            localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
+
+            this.visualizzaStudenti();
+
+            document.getElementById("name").value = "";
+            document.getElementById("lastName").value = "";
+            
+            document.getElementById("addStudent").style.display = "block";
+            document.getElementById("updateStudent").style.display = "none";  
+        }).bind(this);
+    }  
 }
 
 var register = new RegistroClasse();
