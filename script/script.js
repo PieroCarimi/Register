@@ -5,23 +5,28 @@ class RegistroClasse {
     }
   
     aggiungiStudente() {
+        // Ottieni i valori dei campi nome e cognome dal form
         var name = document.getElementById("name").value;
         var lastName = document.getElementById("lastName").value;
 
+        // Verifica se sono stati forniti entrambi i dati
         if (name.trim() === '' || lastName.trim() === '') {
             alert("Inserisci tutti i dati prima di inviare il form.");
             return; // Interrompi la funzione se mancano dati
         }
 
+        // Controlla se esistono dati salvati in localStorage per gli studenti
         if (localStorage.getItem("this.studenti") == null){
             this.studenti=[]
         }else{
             this.studenti =JSON.parse(localStorage.getItem("this.studenti"));
         }
 
+        // Trova il massimo ID tra gli studenti esistenti per generare un nuovo ID univoco
         const maxId = Math.max(...this.studenti.map(student => student.id), 0);
         this.currentId = maxId + 1;
 
+        // Crea un nuovo oggetto studente con i dati forniti e l'ID generato
         var nuovoStudente = {
             name: name,
             lastName: lastName,
@@ -29,24 +34,34 @@ class RegistroClasse {
             voti: []
         };
         
+        // Aggiungi il nuovo studente all'array degli studenti
         this.studenti.push(nuovoStudente);
 
+        // Salva l'array aggiornato in localStorage
         localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
+        
+        // Aggiorna la visualizzazione degli studenti nella tabella
         this.visualizzaStudenti();
+
+        // Pulisci i campi del form dopo l'aggiunta dello studente
         document.getElementById("name").value = "";
         document.getElementById("lastName").value = "";
-      
     }
   
     visualizzaStudenti() {
         var peopleList = [];
+        
+        // Controlla se esistono dati salvati in localStorage per gli studenti
         if(localStorage.getItem("this.studenti") == null){
             this.studenti = [];
         }else{
             this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
         }
     
+        // Crea una copia dell'array degli studenti per evitare modifiche dirette
         peopleList = [...this.studenti];
+
+        // Ordina l'array degli studenti in base al cognome e al nome
         peopleList.sort(function(a, b) {
             var cognomeA = a.lastName.toUpperCase(); // Converti in maiuscolo per ordinamento senza distinzione tra maiuscole e minuscole
             var cognomeB = b.lastName.toUpperCase();
@@ -76,6 +91,8 @@ class RegistroClasse {
 
         var html = "";
         var i = 1;
+
+        // Itera attraverso la lista di studenti ordinata e costruisci la stringa HTML per la tabella
         peopleList.forEach(function(element,index){
             html += "<tr class='align-middle'>";
             html += '<th scope="row" class="text-center">'+i+'</th>'
@@ -90,17 +107,19 @@ class RegistroClasse {
             i++;
         });
 
-    document.querySelector("#crudTable tbody").innerHTML = html;
-      
+        // Inserisci la stringa HTML risultante nella sezione tbody della tabella con id "crudTable"
+        document.querySelector("#crudTable tbody").innerHTML = html;
     }
     
     rimuoviStudente(id) {
+        // Controlla se esistono dati salvati in localStorage per gli studenti
         if (localStorage.getItem("this.studenti") == null) {
             this.studenti = [];
         } else {
             this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
         }
     
+        // Trova l'indice dello studente con l'id specificato all'interno dell'array degli studenti
         const indice = this.studenti.findIndex(studente => studente.id === id);
     
         if (indice !== -1) {
@@ -114,24 +133,27 @@ class RegistroClasse {
       }
 
     modificaStudente(id) {
+        // Nasconde il form di aggiunta studente e mostra quello di modifica
         document.getElementById("addStudent").style.display = "none";
         document.getElementById("updateStudent").style.display = "block";
-        //var name2 = document.getElementById("name").value;
-        //var lastName2 = document.getElementById("lastName").value;
 
+        // Controlla se esistono dati salvati in localStorage per gli studenti
         if(localStorage.getItem("this.studenti") == null){
             this.studenti = [];
         }else{
             this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
         }
 
+        // Trova l'indice dello studente con l'id specificato all'interno dell'array degli studenti
         const indice = this.studenti.findIndex(studente => studente.id === id);
 
+        // Popola i campi del form di modifica con i dati dello studente corrispondente
         document.getElementById("name").value = this.studenti[indice].name;
         document.getElementById("lastName").value = this.studenti[indice].lastName;
 
+        // Definisce l'azione da eseguire al click del pulsante di aggiornamento
         document.querySelector("#updateStudent").onclick = (function(){
-           
+           // Aggiorna i dati dello studente con quelli inseriti nel form di modifica
             this.studenti[indice].name = document.getElementById("name").value;
             this.studenti[indice].lastName = document.getElementById("lastName").value;
             
@@ -144,12 +166,14 @@ class RegistroClasse {
 
             this.visualizzaStudenti();
 
+            // Pulisci i campi del form dopo l'aggiornamento dello studente
             document.getElementById("name").value = "";
             document.getElementById("lastName").value = "";
             
+            // Ripristina la visualizzazione del form di aggiunta studente e nasconde quello di modifica
             document.getElementById("addStudent").style.display = "block";
             document.getElementById("updateStudent").style.display = "none";  
-        }).bind(this);
+        }).bind(this); // Utilizza la funzione bind per assicurarsi che il riferimento a "this" all'interno della funzione sia quello corretto
     }  
 
     visualizzaVoti(id) {
@@ -179,7 +203,8 @@ class RegistroClasse {
         if (existingForm) {
             existingForm.remove();
         }
-
+        
+        // Rimuovi la table esistente se presente
         const existingTable = sezioneVoti.querySelector('table');
         if (existingTable) {
             existingTable.remove();
@@ -193,28 +218,29 @@ class RegistroClasse {
         // Ordina l'array clonato in base alla data
         votiCopia.sort((a, b) => new Date(a.data) - new Date(b.data));
         
+        // Crea il markup HTML per il form di inserimento/modifica voti e la tabella dei voti
         const formHtml = `
             <form onsubmit="register.inserisciVoto(${id}, this); return false;">
-            <div class="row">
-            <div class="col">
-                <label for="voto"><b>Grade:</b></label>
-                <input type="number" class="form-control" placeholder="Grade" name="voto" id="voto" required>
-            </div>
-            <div class="col">
-                <label for="data"><b>Date:</b></label>
-                <input type="date" class="form-control" name="data" id="data" placeholder="dd/mm/yy" required>
-            </div>
-            </div>
-            <div class="row mt-3">
+                <div class="row">
                 <div class="col">
-                    <label for="commento"><b>Comment:</b></label>
-                    <textarea class="form-control" placeholder="Comment" name="commento" id="commento"></textarea>
+                    <label for="voto"><b>Grade:</b></label>
+                    <input type="number" class="form-control" placeholder="Grade" name="voto" id="voto" required>
                 </div>
-            </div>
-            <div class="d-flex justify-content-center mt-4 mb-4">
-                <button type="submit" class="btn btn-success" id="addVoto" onclick="register.inserisciVoto(${id},this)">Add Voto</button>
-                <button type="submit" class="btn btn-primary" id="updateVoto" onclick="register.modificaVoto()">Update Voto</button>
-            </div>
+                <div class="col">
+                    <label for="data"><b>Date:</b></label>
+                    <input type="date" class="form-control" name="data" id="data" placeholder="dd/mm/yy" required>
+                </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col">
+                        <label for="commento"><b>Comment:</b></label>
+                        <textarea class="form-control" placeholder="Comment" name="commento" id="commento" required></textarea>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center mt-4 mb-4">
+                    <button type="submit" class="btn btn-success" id="addVoto" onclick="register.inserisciVoto(${id},this)">Add Voto</button>
+                    <button type="submit" class="btn btn-primary" id="updateVoto" onclick="register.modificaVoto()">Update Voto</button>
+                </div>
             </form>
             <table class="table table-bordered" id="votiTable">
                 <thead>
@@ -247,12 +273,15 @@ class RegistroClasse {
         sezioneVoti.innerHTML += formHtml;
     }
 
+    // La funzione inserisciVoto prende l'id dello studente e il riferimento al form come parametri
     inserisciVoto(id, form) {
+        // Verifica se il form è definito; se non lo è, mostra un messaggio di errore e interrompi la funzione
         if (!form) {
             console.error("Form is undefined");
             return;
         }
     
+        // Ottieni riferimenti agli elementi input del form per il voto, la data e il commento
         const votoInput = form.querySelector('#voto');
         const dataInput = form.querySelector('#data');
         const commentoInput = form.querySelector('#commento');
@@ -262,17 +291,20 @@ class RegistroClasse {
         const data = dataInput ? dataInput.value.trim() : '';
         const commento = commentoInput ? commentoInput.value.trim() : '';
     
-        console.log("Voto:", voto);
-        console.log("Data:", data);
-        console.log("Commento:", commento);
+        //console.log("Voto:", voto);
+        //console.log("Data:", data);
+        //console.log("Commento:", commento);
     
-        if (voto === '' || data === '' || commento === '') {
+        // Verifica se tutti i campi del form sono stati compilati; se non lo sono, mostra un messaggio di errore e interrompi la funzione
+        if (voto == '' || data == '' || commento == '') {
             alert("Inserisci tutti i dati prima di inviare il form.");
             return;
         }
 
+        // Trova lo studente corrispondente nell'array degli studenti
         const studente = this.studenti.find((studente) => studente.id === id);
-        // Calcola il nuovo ID del voto
+
+        // Calcola il nuovo ID del voto, incrementando l'ID massimo tra i voti dello studente
         const idVoto = studente.voti.length > 0 ? Math.max(...studente.voti.map(v => v.id)) + 1 : 1;
 
     
@@ -291,7 +323,9 @@ class RegistroClasse {
     
             // Aggiorna la visualizzazione degli studenti
             this.visualizzaStudenti();
-            votoInput.value = ""; // Pulisci i campi del form
+
+            // Pulisci i campi del form
+            votoInput.value = "";
             dataInput.value = "";
             commentoInput.value = "";
         } else {
@@ -300,6 +334,7 @@ class RegistroClasse {
     }
 
     rimuoviVoto(idStudente, idVoto) {
+        // Controlla se esistono dati salvati in localStorage per gli studenti
         if (localStorage.getItem("this.studenti") == null) {
             this.studenti = [];
         } else {
@@ -330,44 +365,56 @@ class RegistroClasse {
         }
     }
 
+    // La funzione modificaVoto prende gli id dello studente e del voto come parametri
     modificaVoto(idStudente, idVoto) {
+        // Nascondi il pulsante "Aggiungi Voto" e mostra il pulsante "Aggiorna Voto"
         document.getElementById("addVoto").style.display = "none";
         document.getElementById("updateVoto").style.display = "block";
 
+        // Controlla se esistono dati salvati in localStorage per gli studenti
         if(localStorage.getItem("this.studenti") == null){
             this.studenti = [];
         }else{
             this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
         }
 
+        // Trova lo studente corrispondente nell'array degli studenti
         const studente = this.studenti.find(studente => studente.id === idStudente);
+        
         if (studente){
-
+            // Trova l'indice del voto nell'array dei voti dello studente
             const indiceVoto = studente.voti.findIndex(voto => voto.id === idVoto);
 
+            // Popola i campi del form con i valori attuali del voto
             document.getElementById("data").value = studente.voti[indiceVoto].data;
             document.getElementById("voto").value = studente.voti[indiceVoto].voto;
             document.getElementById("commento").value = studente.voti[indiceVoto].commento;
 
+            // Aggiungi un gestore di eventi al pulsante "Aggiorna Voto"
             document.querySelector("#updateVoto").onclick = (function(){
-            
+                // Aggiorna i valori del voto con quelli inseriti dall'utente
                 studente.voti[indiceVoto].data = document.getElementById("data").value;
                 studente.voti[indiceVoto].voto = document.getElementById("voto").value;
                 studente.voti[indiceVoto].commento = document.getElementById("commento").value;
                 
+                // Verifica se tutti i campi del form sono stati compilati; se non lo sono, mostra un messaggio di errore e interrompi la funzione
                 if (!(studente.voti[indiceVoto].data.trim() !== '' && studente.voti[indiceVoto].voto.trim() !== ''  && studente.voti[indiceVoto].commento.trim() !== '')){
                     alert("Inserisci tutti i dati prima di inviare il form.");
                     return;
                 }
 
+                // Aggiorna il localStorage con l'array aggiornato di studenti
                 localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
 
                 this.visualizzaStudenti();
-            }).bind(this);
+            }).bind(this); // Assicura che il contesto "this" rimanga quello dell'istanza corrente della classe
         }
     }  
 
 }
 
+// Istanzia un nuovo oggetto RegistroClasse e lo assegna a una variabile chiamata 'register'
 var register = new RegistroClasse();
+
+// Quando l'intera finestra è stata caricata, esegui la seguente funzione
 window.onload = () => register.visualizzaStudenti();
