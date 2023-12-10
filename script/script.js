@@ -82,7 +82,7 @@ class RegistroClasse {
             html += '<td class="text-center">' + element.id + "</td>";
             html += '<td class="text-center">' + element.name + "</td>";
             html += '<td class="text-center">' + element.lastName + "</td>";
-            html += '<td class="text-center"><button onclick="register.visualizzaVoti('+element.id+')" class="btn btn-outline-dark m-2">Voti ↓</button>'
+            html += '<td class="text-center"><button onclick="register.visualizzaVoti('+element.id+')" class="btn btn-outline-dark m-2">Grade ↓</button>'
             html += 
             '<td class="text-center"><button onclick="register.modificaStudente('+element.id+')"class="btn btn-outline-secondary">Edit</button><button onclick="register.rimuoviStudente('+element.id+')"class="btn btn-outline-danger m-2">Delete</button></td>';
             html +="</tr>";
@@ -184,23 +184,31 @@ class RegistroClasse {
         if (existingTable) {
             existingTable.remove();
         }
+
+        const studente = this.studenti.find((studente) => studente.id === id);
+
+        // Clona l'array dei voti
+        const votiCopia = [...studente.voti];
+
+        // Ordina l'array clonato in base alla data
+        votiCopia.sort((a, b) => new Date(a.data) - new Date(b.data));
         
         const formHtml = `
             <form onsubmit="register.inserisciVoto(${id}, this); return false;">
             <div class="row">
             <div class="col">
-                <label for="voto"><b>Voto:</b></label>
-                <input type="number" class="form-control" placeholder="Voto" name="voto" id="voto" required>
+                <label for="voto"><b>Grade:</b></label>
+                <input type="number" class="form-control" placeholder="Grade" name="voto" id="voto" required>
             </div>
             <div class="col">
-                <label for="data"><b>Data:</b></label>
-                <input type="date" class="form-control" name="data" id="data" required>
+                <label for="data"><b>Date:</b></label>
+                <input type="date" class="form-control" name="data" id="data" placeholder="dd/mm/yy" required>
             </div>
             </div>
             <div class="row mt-3">
                 <div class="col">
-                    <label for="commento"><b>Commento:</b></label>
-                    <textarea class="form-control" placeholder="Commento" name="commento" id="commento"></textarea>
+                    <label for="commento"><b>Comment:</b></label>
+                    <textarea class="form-control" placeholder="Comment" name="commento" id="commento"></textarea>
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-4 mb-4">
@@ -212,25 +220,25 @@ class RegistroClasse {
                 <thead>
                     <tr class="align-middle">
                         <th scope="col" class="text-center">#</th>
-                        <th scope="col" class="text-center">Data</th>
-                        <th scope="col" class="text-center">Voto</th>
-                        <th scope="col" class="text-center">Commento</th>
+                        <th scope="col" class="text-center">Date</th>
+                        <th scope="col" class="text-center">Grade</th>
+                        <th scope="col" class="text-center">Comment</th>
                         <th scope="col" class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${this.studenti
-                        .find((studente) => studente.id === id)
-                        .voti.map((voto, index) => `
-                            <tr class="align-middle">
-                                <th scope="row" class="text-center">${index + 1}</th>
-                                <td class="text-center">${voto.data}</td>
-                                <td class="text-center">${voto.voto}</td>
-                                <td class="text-center">${voto.commento}</td>
-                                <td class="text-center"><button onclick="register.modificaVoto('+element.id+')"class="btn btn-outline-secondary">Edit</button><button onclick="register.rimuoviVoto(${id}, ${voto.id})"class="btn btn-outline-danger m-2">Delete</button></td>
-                            </tr>
-                        `).join('')
-                    }
+                    ${votiCopia.map((voto, index) => `
+                        <tr class="align-middle">
+                            <th scope="row" class="text-center">${index + 1}</th>
+                            <td class="text-center">${voto.data}</td>
+                            <td class="text-center">${voto.voto}</td>
+                            <td class="text-center">${voto.commento}</td>
+                            <td class="text-center">
+                                <button onclick="register.modificaVoto(${id}, ${voto.id})" class="btn btn-outline-secondary">Edit</button>
+                                <button onclick="register.rimuoviVoto(${id}, ${voto.id})" class="btn btn-outline-danger m-2">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('')}
                 </tbody>
                 </table>
             `;
@@ -321,6 +329,43 @@ class RegistroClasse {
             console.error("Studente non trovato con l'id:", idStudente);
         }
     }
+
+    modificaVoto(idStudente, idVoto) {
+        document.getElementById("addVoto").style.display = "none";
+        document.getElementById("updateVoto").style.display = "block";
+
+        if(localStorage.getItem("this.studenti") == null){
+            this.studenti = [];
+        }else{
+            this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
+        }
+
+        const studente = this.studenti.find(studente => studente.id === idStudente);
+        if (studente){
+
+            const indiceVoto = studente.voti.findIndex(voto => voto.id === idVoto);
+
+            document.getElementById("data").value = studente.voti[indiceVoto].data;
+            document.getElementById("voto").value = studente.voti[indiceVoto].voto;
+            document.getElementById("commento").value = studente.voti[indiceVoto].commento;
+
+            document.querySelector("#updateVoto").onclick = (function(){
+            
+                studente.voti[indiceVoto].data = document.getElementById("data").value;
+                studente.voti[indiceVoto].voto = document.getElementById("voto").value;
+                studente.voti[indiceVoto].commento = document.getElementById("commento").value;
+                
+                if (!(studente.voti[indiceVoto].data.trim() !== '' && studente.voti[indiceVoto].voto.trim() !== ''  && studente.voti[indiceVoto].commento.trim() !== '')){
+                    alert("Inserisci tutti i dati prima di inviare il form.");
+                    return;
+                }
+
+                localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
+
+                this.visualizzaStudenti();
+            }).bind(this);
+        }
+    }  
 
 }
 
