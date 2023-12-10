@@ -227,7 +227,7 @@ class RegistroClasse {
                                 <td class="text-center">${voto.data}</td>
                                 <td class="text-center">${voto.voto}</td>
                                 <td class="text-center">${voto.commento}</td>
-                                <td class="text-center"><button onclick="register.modificaStudente('+element.id+')"class="btn btn-outline-secondary">Edit</button><button onclick="register.rimuoviStudente('+element.id+')"class="btn btn-outline-danger m-2">Delete</button></td>
+                                <td class="text-center"><button onclick="register.modificaVoto('+element.id+')"class="btn btn-outline-secondary">Edit</button><button onclick="register.rimuoviVoto(${id}, ${voto.id})"class="btn btn-outline-danger m-2">Delete</button></td>
                             </tr>
                         `).join('')
                     }
@@ -250,28 +250,33 @@ class RegistroClasse {
         const commentoInput = form.querySelector('#commento');
     
         // Verifica se gli input sono presenti prima di accedere ai loro valori
-        const voto = (votoInput && votoInput.value) ? votoInput.value.toString().trim() : '';
-        const data = (dataInput && dataInput.value) ? dataInput.value.trim() : '';
-        const commento = (commentoInput && commentoInput.value) ? commentoInput.value.trim() : '';
+        const voto = votoInput ? votoInput.value.toString().trim() : '';
+        const data = dataInput ? dataInput.value.trim() : '';
+        const commento = commentoInput ? commentoInput.value.trim() : '';
     
         console.log("Voto:", voto);
         console.log("Data:", data);
         console.log("Commento:", commento);
     
-        if (voto.trim() === '' || data.trim() === '' || commento.trim() === '') {
+        if (voto === '' || data === '' || commento === '') {
             alert("Inserisci tutti i dati prima di inviare il form.");
             return;
         }
-    
+
         const studente = this.studenti.find((studente) => studente.id === id);
+        // Calcola il nuovo ID del voto
+        const idVoto = studente.voti.length > 0 ? Math.max(...studente.voti.map(v => v.id)) + 1 : 1;
+
     
         if (studente) {
             // Aggiungi il nuovo voto allo studente
             studente.voti.push({
                 voto: voto,
                 data: data,
-                commento: commento
+                commento: commento,
+                id: idVoto
             });
+            console.log(idVoto);
     
             // Aggiorna il localStorage con l'array aggiornato di studenti
             localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
@@ -283,6 +288,37 @@ class RegistroClasse {
             commentoInput.value = "";
         } else {
             console.error("Studente non trovato con l'id:", id);
+        }
+    }
+
+    rimuoviVoto(idStudente, idVoto) {
+        if (localStorage.getItem("this.studenti") == null) {
+            this.studenti = [];
+        } else {
+            this.studenti = JSON.parse(localStorage.getItem("this.studenti"));
+        }
+    
+        const studente = this.studenti.find(studente => studente.id === idStudente);
+    
+        if (studente) {
+            // Trova l'indice del voto con l'id specificato all'interno dell'array voti
+            const indiceVoto = studente.voti.findIndex(voto => voto.id === idVoto);
+
+            // Verifica se l'indice del voto è valido
+            if (indiceVoto !== -1) {
+                // Rimuovi il voto dall'array
+                studente.voti.splice(indiceVoto, 1);
+
+                // Aggiorna il localStorage con l'array aggiornato di studenti
+                localStorage.setItem("this.studenti", JSON.stringify(this.studenti));
+
+                // Aggiorna la visualizzazione degli studenti
+                this.visualizzaStudenti();
+            } else {
+                console.error("Indice voto non valido:", indiceVoto);
+            }
+        } else {
+            console.error("Studente non trovato con l'id:", idStudente);
         }
     }
 
